@@ -1,5 +1,7 @@
+![Screenshot](screenshot.png)
+
 Static Spawnpoint [spawnpoint]
-==============================
+================================
 * License: MIT (see LICENSE)
 * [Download Latest Version](https://github.com/octacian/spawnpoint/archive/master.zip)
 * ...or browse the code on [GitHub](https://github.com/octacian/spawnpoint)
@@ -11,3 +13,5 @@ This is a rather simple mod introducing two commands to set a static spawnpoint 
 - `/setspawn <position>`: Sets the spawn to the position specified (in format `x, y, z`) or to your current location (requires `server` privilege)
 
 __Note:__ If no spawnpoint is specified, nothing will happen when a player executes `/spawn`.
+
+Screenshot was taken at spawn on the awesome [HOMETOWN](https://forum.minetest.net/viewtopic.php?f=10&t=16699) server!
