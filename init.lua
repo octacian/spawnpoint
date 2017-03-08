@@ -1,0 +1,1 @@
+-- spawnpoint/init.lua
