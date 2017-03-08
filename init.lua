@@ -69,3 +69,46 @@ end)
 minetest.register_on_newplayer(function(player)
   spawnpoint.bring(player)
 end)
+
+-- [register priv] Spawn
+minetest.register_privilege("spawn", "Ability to teleport to spawn at will with /spawn")
+
+-- [register cmd] Set spawn
+minetest.register_chatcommand("setspawn", {
+  description = "Teleport to spawn",
+  privs = {server=true},
+  func = function(name, param)
+    local pos = minetest.get_player_by_name(name):getpos()
+    if param then
+      local ppos = minetest.string_to_pos(param)
+      if type(ppos) == "table" then
+        pos = ppos
+      end
+    end
+
+    spawnpoint.set(pos)
+
+    return true, "Set spawnpoint to "..minetest.pos_to_string(pos)
+  end,
+})
+
+-- [register cmd] Teleport to spawn
+minetest.register_chatcommand("spawn", {
+  description = "Teleport to spawn",
+  privs = {spawn=true},
+  func = function(name, param)
+    local player = minetest.get_player_by_name(name)
+    if param ~= "" then
+      local pplayer = minetest.get_player_by_name(param)
+      if pplayer and minetest.check_player_privs(pplayer, {bring=true}) then
+        player = pplayer
+      else
+        return false, "Cannot teleport another player to spawn without bring privilege"
+      end
+    end
+
+    spawnpoint.bring(player)
+
+    return true, "Teleporting to spawn"
+  end,
+})
