@@ -8,7 +8,7 @@ local path = minetest.get_worldpath().."/spawnpoint.conf"
 function spawnpoint.log(content, log_type)
   if not content then return false end
   if log_type == nil then log_type = "action" end
-  minetest.log(log_type, "[HUD Plus] "..content)
+  minetest.log(log_type, "[SpawnPoint] "..content)
 end
 
 ----------------------
@@ -17,8 +17,8 @@ end
 
 -- [function] Load
 function spawnpoint.load()
-  local res = io.open(path, "r")
-  if res then
+  local res = io.open(path, "r"):read("*all")
+  if res ~= "" then
     spawnpoint.pos = minetest.string_to_pos(res)
   end
 end
@@ -45,7 +45,7 @@ function spawnpoint.bring(player)
     player = minetest.get_player_by_name(player)
   end
 
-  if player then
+  if player and spawnpoint.pos then
     local pos = spawnpoint.pos
     player:setpos({x=pos.x, y=pos.y+0.5, z=pos.z})
   end
@@ -62,5 +62,10 @@ minetest.register_on_shutdown(spawnpoint.save)
 
 -- [register] On Respawn Player
 minetest.register_on_respawnplayer(function(player)
+  spawnpoint.bring(player)
+end)
+
+-- [register] On New Player
+minetest.register_on_newplayer(function(player)
   spawnpoint.bring(player)
 end)
