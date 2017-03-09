@@ -2,6 +2,9 @@
 
 spawnpoint = {}
 
+spawnpoint.time        = tonumber(minetest.setting_get("spawnpoint.time")) or 3
+spawnpoint.do_not_move = not not minetest.setting_get("spawnpoint.do_not_move") or true
+
 local path = minetest.get_worldpath().."/spawnpoint.conf"
 
 -- [function] Log
@@ -57,6 +60,81 @@ function spawnpoint.bring(player)
   if player and spawnpoint.pos then
     local pos = spawnpoint.pos
     player:setpos({x=pos.x, y=pos.y+0.5, z=pos.z})
+  end
+end
+
+-- [function] Begin Countdown
+function spawnpoint.begin(player, time)
+  if not time then
+    time = spawnpoint.time
+  end
+
+  if type(player) == string then
+    player = minetest.get_player_by_name(player)
+  end
+
+  local name = player:get_player_name()
+
+  if player and time and time ~= 0 then
+    local move = "Do not move!"
+    if spawnpoint.do_not_move ~= true then
+      move = ""
+    end
+
+    local pos       = player:get_pos()
+    local has_moved = false
+    local seconds   = "s"
+
+    if time < 2 then
+      seconds = ""
+    end
+
+    -- Send to chat
+    minetest.chat_send_player(name, "Teleportation will be complete in "..time..
+      " second"..seconds..". "..move)
+
+    -- Add initial HUD
+    local hud = player:hud_add({
+      hud_elem_type = "text",
+      text = "Teleportation Progress: "..time.." seconds remaining!",
+      position = {x = 0.5, y = 0.5},
+      number = 0xFFFFFF,
+    })
+
+    -- Register update callbacks
+    for i = 1, time do
+      if i == time then
+        minetest.after(i, function()
+          if move ~= "" and has_moved ~= true and not vector.equals(pos, player:get_pos()) then
+            player:hud_remove(hud)
+            minetest.chat_send_player(name, "Teleportation interrupted! (Player moved)")
+            has_moved = true
+            return
+          end
+
+          player:hud_remove(hud)
+          spawnpoint.bring(player)
+
+          -- Send to chat
+          minetest.chat_send_player(name, "Teleportation successful!")
+        end)
+      else
+        minetest.after(i, function()
+          if move ~= "" and has_moved ~= true and not vector.equals(pos, player:get_pos()) then
+            player:hud_remove(hud)
+            minetest.chat_send_player(name, "Teleportation interrupted! (Player moved)")
+            has_moved = true
+            spawnpoint.log(dump(pos)..", "..dump(player:getpos()))
+            return
+          end
+
+          player:hud_change(hud, "text", "Teleportation Progress: "..time - i.." seconds remaining!")
+        end)
+      end
+    end
+  elseif player then
+    minetest.chat_send_player(name, "Teleporting to spawn")
+    spawnpoint.bring(player)
   end
 end
 
@@ -116,8 +194,6 @@ minetest.register_chatcommand("spawn", {
       end
     end
 
-    spawnpoint.bring(player)
-
-    return true, "Teleporting to spawn"
+    spawnpoint.begin(player)
   end,
 })
