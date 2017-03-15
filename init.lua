@@ -30,7 +30,7 @@ end
 -- [function] Load
 function spawnpoint.load()
   local res = io.open(path, "r"):read("*all")
-  if res ~= "" then
+  if res and res ~= "" then
     spawnpoint.pos = minetest.string_to_pos(res)
   end
 end
