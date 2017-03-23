@@ -199,6 +199,10 @@ minetest.register_chatcommand("spawn", {
       end
     end
 
+    if not spawnpoint.pos then
+      return false, "No spawnpoint set!"
+    end
+
     spawnpoint.begin(player)
   end,
 })
