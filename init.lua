@@ -167,7 +167,7 @@ minetest.register_privilege("spawn", "Ability to teleport to spawn at will with 
 
 -- [register cmd] Set spawn
 minetest.register_chatcommand("setspawn", {
-  description = "Teleport to spawn",
+  description = "Set spawn",
   privs = {server=true},
   func = function(name, param)
     local pos = minetest.get_player_by_name(name):getpos()
