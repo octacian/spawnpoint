@@ -40,7 +40,9 @@ end
 
 -- [function] Save
 function spawnpoint.save()
-  io.open(path, "w"):write(minetest.pos_to_string(spawnpoint.pos))
+  if spawnpoint.pos then
+    io.open(path, "w"):write(minetest.pos_to_string(spawnpoint.pos))
+  end
 end
 
 -- [function] Set
