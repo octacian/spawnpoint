@@ -117,11 +117,13 @@ function spawnpoint.begin(player, time)
             return
           end
 
-          player:hud_remove(hud)
-          spawnpoint.bring(player)
+          if vector.equals(pos, player:get_pos()) then
+            player:hud_remove(hud)
+            spawnpoint.bring(player)
 
-          -- Send to chat
-          minetest.chat_send_player(name, "Teleportation successful!")
+            -- Send to chat
+            minetest.chat_send_player(name, "Teleportation successful!")
+          end
         end)
       else
         minetest.after(i, function()
@@ -215,7 +217,7 @@ minetest.register_chatcommand("spawnpoint", {
     if spawnpoint.pos then
       pos = minetest.pos_to_string(spawnpoint.pos)
     end
-    
+
     return true, "SpawnPoint Position: "..pos
   end,
 })
