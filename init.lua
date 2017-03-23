@@ -206,3 +206,16 @@ minetest.register_chatcommand("spawn", {
     spawnpoint.begin(player)
   end,
 })
+
+-- [register cmd] Get spawn
+minetest.register_chatcommand("spawnpoint", {
+  description = "Get SpawnPoint information",
+  func = function(name, param)
+    local pos = "Not set!"
+    if spawnpoint.pos then
+      pos = minetest.pos_to_string(spawnpoint.pos)
+    end
+    
+    return true, "SpawnPoint Position: "..pos
+  end,
+})
