@@ -2,9 +2,6 @@
 
 spawnpoint = {}
 
-spawnpoint.time        = tonumber(minetest.setting_get("spawnpoint.time")) or 3
-spawnpoint.do_not_move = not not minetest.setting_get("spawnpoint.do_not_move") or true
-
 local path = minetest.get_worldpath().."/spawnpoint.conf"
 
 -- [function] Log
@@ -54,18 +51,30 @@ end
 function spawnpoint.load()
   local res = io.open(path, "r")
   if res then
-    res = res:read("*all")
-    if res ~= "" then
-      spawnpoint.pos = minetest.string_to_pos(res)
+    res = res:read("*all"):split("\n", true)
+
+    spawnpoint.time        = tonumber(res[1]) or 3
+    spawnpoint.do_not_move = not not res[2] or true
+
+    if res[3] then
+      spawnpoint.pos = minetest.string_to_pos(res[3])
     end
+  else
+    spawnpoint.time        = 3
+    spawnpoint.do_not_move = true
   end
 end
 
 -- [function] Save
 function spawnpoint.save()
+  local str = tostring(spawnpoint.time)..
+    "\n"..tostring(spawnpoint.do_not_move) or ""
+
   if spawnpoint.pos then
-    io.open(path, "w"):write(minetest.pos_to_string(spawnpoint.pos))
+    str = str.."\n"..minetest.pos_to_string(spawnpoint.pos)
   end
+
+  io.open(path, "w"):write(str)
 end
 
 -- [function] Set
@@ -220,15 +229,41 @@ minetest.register_chatcommand("spawn", {
   end,
 })
 
--- [register cmd] Get spawn
+-- [register cmd] Manage spawnpoint
 minetest.register_chatcommand("spawnpoint", {
-  description = "Get SpawnPoint information",
+  description = "Get/Set SpawnPoint information",
   func = function(name, param)
-    local pos = "Not set!"
-    if spawnpoint.pos then
-      pos = minetest.pos_to_string(spawnpoint.pos)
-    end
+    if not param or param == "" then
+      local pos = "Not set!"
+      if spawnpoint.pos then
+        pos = minetest.pos_to_string(spawnpoint.pos)
+      end
 
-    return true, "SpawnPoint Position: "..pos
+      return true, "SpawnPoint Position: "..pos
+    elseif minetest.check_player_privs(minetest.get_player_by_name(name), {server=true}) then
+      local p = param:split(" ")
+
+      if p[1] == "time" then
+        local num = tonumber(p[2])
+
+        if not num then
+          return true, "SpawnPoint->time: "..spawnpoint.time
+        elseif num == spawnpoint.time then
+          return false, "Time already set to "..p[2].."!"
+        else
+          spawnpoint.time = num
+          return true, "Set time to "..tostring(num)
+        end
+      elseif p[1] == "do_not_move" then
+        local move = minetest.is_yes(p[2])
+        minetest.log("action", dump(p[2])..", "..dump(move))
+        if move == nil then
+          return true, "SpawnPoint->do_not_move: "..tostring(spawnpoint.do_not_move)
+        else
+          spawnpoint.do_not_move = move
+          return true, "Set do_not_move to "..tostring(move)
+        end
+      end
+    end
   end,
 })
