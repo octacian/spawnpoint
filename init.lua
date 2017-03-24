@@ -23,7 +23,7 @@ minetest.register_globalstep(function(dtime)
   for _, player in pairs(minetest.get_connected_players()) do
     local name = player:get_player_name()
 
-    if pos[name] then
+    if pos[name] and spawnpoint.do_not_move then
       if not moved[name] and not vector.equals(pos[name], player:getpos()) then
         moved[name] = true
 
@@ -149,6 +149,9 @@ function spawnpoint.begin(player, time)
 
             -- Send to chat
             minetest.chat_send_player(name, "Teleportation successful!")
+
+            -- Prevent further callbacks from globalstep
+            moved[name] = true
           end
         end)
       else
