@@ -38,15 +38,6 @@ end)
 -- HELPER FUNCTIONS --
 ----------------------
 
--- [function] Clean Position
-function spawnpoint.pos_clean(pos)
-	pos.x = math.floor(pos.x)
-	pos.y = math.floor(pos.y)
-	pos.z = math.floor(pos.z)
-
-	return pos
-end
-
 -- [function] Load
 function spawnpoint.load()
 	local res = io.open(path, "r")
@@ -84,7 +75,7 @@ function spawnpoint.set(pos)
 	end
 
 	if type(pos) == "table" then
-		spawnpoint.pos = spawnpoint.pos_clean(pos)
+		spawnpoint.pos = pos
 	end
 end
 
@@ -202,6 +193,7 @@ minetest.register_chatcommand("setspawn", {
 				pos = ppos
 			end
 		end
+		pos = vector.round(pos)
 
 		spawnpoint.set(pos)
 
