@@ -76,7 +76,6 @@ function spawnpoint.load()
 		if storage then
 			os.remove(path)
 		end
-		minetest.log("Loaded via Settings")
 	elseif storage and not is_empty(storage:to_table()) then
 		local pos = storage:get_string("pos")
 		if pos then
@@ -91,7 +90,6 @@ function spawnpoint.load()
 		end
 
 		spawnpoint.time = storage:get_float("time")
-		minetest.log("Loaded via modstorage")
 	else
 		local f = io.open(path, "r")
 		if f then
@@ -126,7 +124,6 @@ function spawnpoint.save()
 			storage:set_string("pos", minetest.pos_to_string(spawnpoint.pos))
 		end
 
-		minetest.log("Saved via modstorage")
 		return true
 	elseif data then
 		data:set("time", tostring(spawnpoint.time))
@@ -137,7 +134,6 @@ function spawnpoint.save()
 		end
 
 		data:write()
-		minetest.log("Saved via settings")
 		return true
 	end
 end
@@ -151,6 +147,7 @@ function spawnpoint.set(pos)
 	if type(pos) == "table" then
 		spawnpoint.pos = pos
 		spawnpoint.save()
+		spawnpoint.log("Set spawnpoint to "..minetest.pos_to_string(pos))
 	end
 end
 
@@ -323,15 +320,17 @@ minetest.register_chatcommand("spawnpoint", {
 				else
 					spawnpoint.time = num
 					spawnpoint.save()
+					spawnpoint.log("Set time to "..dump(num))
 					return true, "Set time to "..dump(num)
 				end
 			elseif p[1] == "do_not_move" then
 				local move = minetest.is_yes(p[2])
-				if move == nil then
+				if move == nil or not p[2] then
 					return true, "SpawnPoint->do_not_move: "..dump(spawnpoint.do_not_move)
 				else
 					spawnpoint.do_not_move = move
 					spawnpoint.save()
+					spawnpoint.log("Set do_not_move to "..dump(move))
 					return true, "Set do_not_move to "..dump(move)
 				end
 			end
