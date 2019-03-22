@@ -117,7 +117,7 @@ end
 -- [function] Save
 function spawnpoint.save()
 	if storage then
-		storage:set_float("time", spawnpoint.time)
+		storage:set_float("time", spawnpoint.time or 0)
 		storage:set_string("do_not_move", tostring(spawnpoint.do_not_move))
 
 		if spawnpoint.pos then
